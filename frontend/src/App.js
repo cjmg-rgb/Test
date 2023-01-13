@@ -1,55 +1,27 @@
-import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AppBar from './components/AppBar';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+
+import { useAuthContext } from './hooks/useAuthContext';
 
 function App() {
-  const [form, setForm] = useState({
-    amount: 0,
-    description: '',
-    date: ''
-  })
 
-  const handleInput = (e) => {
-    setForm({...form, [e.target.name]: e.target.value})
-  };
+  const { user } = useAuthContext();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const response = await fetch('http://localhost:4000/transaction', {
-      method: 'POST',
-      body: form
-    })
-    const json = await response.json();
-    console.log(response);
-  };
-  
   return (
     <div className="App">
-      <form
-        onSubmit={handleSubmit}
-      >
-        <input type="number"
-          placeholder="Transaction amount"
-          name="amount"
-          value={form.amount}
-          onChange={handleInput}
-        />
-        <input type="text"
-          placeholder="Transaction description"
-          name="description"
-          value={form.description}
-          onChange={handleInput}
-        />
-        <input type="date"
-          name="date"
-          value={form.date}
-          onChange={handleInput}
-        />
-        <button
-          type="submit"
-        >
-          Submit
-        </button>
-      </form>
+      <BrowserRouter>
+        <AppBar />
+        <div className="pages">
+          <Routes>
+            <Route path='/' element={user ? <Home/> : <Navigate to='login'/>}/>
+            <Route path='login' element={!user ? <Login /> : <Navigate to='/'/>}/>
+            <Route path='register' element={!user ? <Register /> : <Navigate to='/' />} />
+          </Routes>
+        </div>      
+      </BrowserRouter>
     </div>
   );
 }
